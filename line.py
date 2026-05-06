@@ -1,0 +1,113 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.tri as tri
+
+# =========================
+# DATOS
+# =========================
+
+datos = [
+    # 2V
+    (0.0,-1.0,2.06),(0.0,-8.2,2.11),(0.0,-6.1,2.05),
+    (0.0,-4.1,2.11),(0.0,-2.0,2.07),(0.0,0.0,2.05),
+    (0.0,2.0,2.03),(0.1,4.0,2.00),(0.1,5.8,2.04),
+    (0.0,7.2,2.00),
+
+    # 5V
+    (3.9,-10.0,5.000),(4.2,-7.4,4.990),(4.2,-5.4,4.990),
+    (4.2,-2.7,5.000),(4.3,0.0,5.000),(4.3,2.0,5.030),
+    (4.3,4.8,5.040),(4.2,6.3,5.000),(4.0,8.0,5.000),
+    (3.5,10.0,5.000),
+
+    # 10V
+    (11.5,-10.0,10.00),(11.2,-7.5,10.01),(11.1,-5.4,9.99),
+    (11.0,-4.3,10.00),(10.8,-1.0,10.00),(11.0,2.3,10.00),
+    (11.0,3.6,10.01),(11.3,4.9,10.01),(11.6,7.7,10.02),
+    (11.9,9.8,10.00),
+
+    # 15V
+    (19.3,-9.8,15.000),(18.5,-8.0,15.000),(17.0,-5.0,15.010),
+    (16.5,-2.5,15.000),(16.3,0.0,15.000),(16.8,3.3,15.000),
+    (17.5,4.1,15.000),(18.0,5.0,15.000),(19.9,7.0,15.000),
+    (21.9,9.7,15.020),
+
+    # 18V
+    (24.2,-6.2,18.00),(20.7,-4.3,18.01),(27.1,-5.9,18.00),
+    (18.6,-1.4,18.02),(19.8,3.5,18.00),(18.6,0.0,18.02),
+    (20.4,4.4,18.00),(23.3,5.9,18.00),(25.8,6.0,18.01),
+    (28.1,4.6,18.01)
+]
+
+# =========================
+# DATAFRAME
+# =========================
+
+df = pd.DataFrame(datos, columns=["x", "y", "V"])
+
+x = df["x"]
+y = df["y"]
+z = df["V"]
+
+# triangulación
+triang = tri.Triangulation(x, y)
+
+# =========================
+# COLORES CONSISTENTES
+# =========================
+
+cmap = plt.get_cmap("viridis")
+
+niveles = [2.05, 5, 10, 15, 18]
+
+# rango completo del espectro
+vmin = 2
+vmax = 20
+
+# colores equivalentes al mapa espectral
+colores = [
+    cmap((nivel - vmin) / (vmax - vmin))
+    for nivel in niveles
+]
+
+# =========================
+# FIGURA
+# =========================
+
+plt.figure(figsize=(10,7))
+
+# líneas equipotenciales
+contour = plt.tricontour(
+    triang,
+    z,
+    levels=niveles,
+    colors=colores,
+    linewidths=2.5
+)
+
+# etiquetas
+plt.clabel(
+    contour,
+    fmt='%1.0f V',
+    inline=True,
+    fontsize=10
+)
+
+# puntos experimentales
+plt.scatter(
+    x,
+    y,
+    color='black',
+    s=25,
+    zorder=3
+)
+
+# títulos
+plt.title("Líneas equipotenciales experimentales")
+plt.xlabel("x (0.1 cm)")
+plt.ylabel("y (0.1 cm)")
+
+# formato
+plt.axis('equal')
+plt.grid(True)
+
+plt.show()
